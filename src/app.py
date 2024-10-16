@@ -1,5 +1,6 @@
 import json
 import spacy
+from collections import Counter
 
 nlp = spacy.load('en_core_web_sm')
 
@@ -52,12 +53,13 @@ while i < len(words) - 1:
             # add to dictionary
             if next_word and is_noun(next_word):
                 next_word = get_base_form(next_word)
-                nouns_by_verb.setdefault(verb_key, set()).add(next_word)
+                nouns_by_verb.setdefault(verb_key, []).append(next_word)
             
             break
     i += 1
 
-nouns_by_verb = {key: list(value) for key, value in nouns_by_verb.items()}
+# nouns_by_verb = {key: list(value) for key, value in nouns_by_verb.items()}
+nouns_by_verb = {key: [item for item, _ in Counter(value).most_common()] for key, value in nouns_by_verb.items()}
 
 with open('output/output.json', 'w', encoding='utf-8') as f:
     json.dump(nouns_by_verb, f, ensure_ascii=False, indent=4)
